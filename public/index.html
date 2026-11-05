@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STPIM</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>STPIM</h1>
+    <span id="today"></span>
+  </header>
+  <main>
+    <div class="tabs">
+      <button class="tab active" id="tab-time" type="button">時間制</button>
+      <button class="tab" id="tab-priority" type="button">優先順位</button>
+    </div>
+    <h2>これからやること（横にドラッグしてクリア）</h2>
+    <div class="tower" id="tower"></div>
+    <h2>クリア済み</h2>
+    <div class="tower" id="cleared"></div>
+  </main>
+  <div class="toast" id="toast"></div>
+
+  <script src="js/constants.js"></script>
+  <script src="js/blocks.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
