@@ -1,0 +1,29 @@
+# ---- Eclipse ----
+.metadata/
+Servers/
+.recommenders/
+.apt_generated/
+.factorypath
+*.launch
+# .project / .classpath / .settings は共有する（ランタイム名は全員でそろえる）
+
+# ---- Java ----
+bin/
+build/
+target/
+out/
+*.class
+*.war
+*.log
+src/main/webapp/WEB-INF/classes/
+src/main/webapp/WEB-INF/lib/*.jar
+
+# ---- 秘密の情報（DBのパスワードなど） ----
+.env
+*.secret
+db.properties
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini

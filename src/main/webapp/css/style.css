@@ -1,0 +1,23 @@
+:root { --border: #333; --bg: #fafafa; --accent: #c00000; --missed: #fde7e7; --done: #eee; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif; background: var(--bg); color: #222; }
+header { background: #000; color: #fff; padding: 12px 24px; display: flex; align-items: baseline; gap: 16px; }
+header h1 { margin: 0; font-size: 22px; }
+main { max-width: 640px; margin: 0 auto; padding: 16px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab { flex: 1; padding: 10px; border: 2px solid var(--border); background: #fff; font-size: 16px; text-align: center; text-decoration: none; color: inherit; }
+.tab.active { background: var(--border); color: #fff; }
+h2 { font-size: 16px; margin: 20px 0 8px; }
+.tower { display: flex; flex-direction: column; gap: 8px; overflow-x: hidden; }
+.block { border: 2px solid var(--border); background: #fff; padding: 10px 12px; user-select: none; touch-action: pan-y; transition: transform 0.2s, opacity 0.2s; }
+.block.draggable { cursor: grab; }
+.block.dragging { transition: none; cursor: grabbing; }
+.block.missed { background: var(--missed); border-color: var(--accent); }
+.block.done { background: var(--done); }
+.block-title { font-weight: bold; font-size: 17px; }
+.block-sub { font-size: 13px; color: #555; margin-top: 4px; }
+.block-actions { margin-top: 8px; display: flex; gap: 8px; }
+.block-actions button { padding: 4px 10px; border: 1px solid var(--border); background: #fff; cursor: pointer; }
+.empty { color: #888; font-size: 14px; }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #000; color: #fff; padding: 12px 20px; font-size: 16px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.toast.show { opacity: 1; }
