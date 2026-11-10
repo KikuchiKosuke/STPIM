@@ -4,6 +4,7 @@ package stpim.dao;
 public final class Daos {
 
     private static final BlockDao BLOCK_DAO = new InMemoryBlockDao();
+    private static final UserDao USER_DAO = new InMemoryUserDao();
 
     private Daos() {
     }
@@ -11,4 +12,6 @@ public final class Daos {
     public static BlockDao blockDao() {
         return BLOCK_DAO;
     }
+
+    public static UserDao userDao() { return USER_DAO; }
 }

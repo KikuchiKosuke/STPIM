@@ -7,6 +7,7 @@ import java.time.LocalTime;
 /** ブロック（クラス図の Block） */
 public class Block {
     private Integer id;
+    private int userId;
     private LocalDate targetDate;
     private String title;
     private String memo;
@@ -25,6 +26,8 @@ public class Block {
 
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
     public LocalDate getTargetDate() { return targetDate; }
     public void setTargetDate(LocalDate targetDate) { this.targetDate = targetDate; }
     public String getTitle() { return title; }

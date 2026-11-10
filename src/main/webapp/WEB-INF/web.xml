@@ -4,7 +4,32 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
   <display-name>stpim</display-name>
+  <!-- 文字コードを認証処理やServletより前に確定する -->
+  <filter>
+    <filter-name>characterEncodingFilter</filter-name>
+    <filter-class>stpim.filter.CharacterEncodingFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>characterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter>
+    <filter-name>authFilter</filter-name>
+    <filter-class>stpim.filter.AuthFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>authFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
+  <jsp-config>
+    <jsp-property-group>
+      <url-pattern>*.jsp</url-pattern>
+      <url-pattern>*.jspf</url-pattern>
+      <page-encoding>UTF-8</page-encoding>
+      <default-content-type>text/html; charset=UTF-8</default-content-type>
+    </jsp-property-group>
+  </jsp-config>
 </web-app>

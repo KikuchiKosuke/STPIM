@@ -1,64 +1,25 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.List, stpim.model.Block, stpim.model.BlockStatus, stpim.model.BlockType, stpim.util.BlockView, stpim.util.Html" %>
+<%@ page import="java.time.LocalDate,java.util.List,stpim.model.Block,stpim.model.BlockType,stpim.model.ClearResult,stpim.util.BlockView,stpim.util.Html" %>
 <%
-    // JSTL を入れたら、この部分は c:forEach に書き換えられる
-    @SuppressWarnings("unchecked")
-    List<Block> todoBlocks = (List<Block>) request.getAttribute("todoBlocks");
-    @SuppressWarnings("unchecked")
-    List<Block> doneBlocks = (List<Block>) request.getAttribute("doneBlocks");
-    BlockType tab = (BlockType) request.getAttribute("tab");
-    String ctx = request.getContextPath();
+LocalDate date=(LocalDate)request.getAttribute("date");
+String ctx=request.getContextPath();
+@SuppressWarnings("unchecked") List<Block> timedTodo=(List<Block>)request.getAttribute("timedTodo");
+@SuppressWarnings("unchecked") List<Block> timedDone=(List<Block>)request.getAttribute("timedDone");
+@SuppressWarnings("unchecked") List<Block> priorityTodo=(List<Block>)request.getAttribute("priorityTodo");
+@SuppressWarnings("unchecked") List<Block> priorityDone=(List<Block>)request.getAttribute("priorityDone");
+Block resultBlock=(Block)request.getAttribute("resultBlock"); ClearResult result=(ClearResult)request.getAttribute("result");
 %>
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>STPIM</title>
-  <link rel="stylesheet" href="<%= ctx %>/css/style.css">
-</head>
-<body data-ctx="<%= ctx %>">
-  <header>
-    <h1>STPIM</h1>
-    <span><%= request.getAttribute("date") %></span>
-  </header>
-  <main>
-    <div class="tabs">
-      <a class="tab<%= tab == BlockType.TIME ? " active" : "" %>" href="<%= ctx %>/day?date=<%= request.getAttribute("date") %>&tab=TIME">時間制</a>
-      <a class="tab<%= tab == BlockType.PRIORITY ? " active" : "" %>" href="<%= ctx %>/day?date=<%= request.getAttribute("date") %>&tab=PRIORITY">優先順位</a>
-    </div>
-
-    <h2>これからやること（横にドラッグしてクリア）</h2>
-    <div class="tower">
-<% if (todoBlocks.isEmpty()) { %>
-      <div class="empty">ブロックがありません</div>
-<% } %>
-<% for (Block b : todoBlocks) { %>
-      <div class="<%= BlockView.cssClass(b) %>" data-id="<%= b.getId() %>">
-        <div class="block-title"><%= Html.escape(b.getTitle()) %></div>
-        <div class="block-sub"><%= Html.escape(BlockView.subText(b)) %></div>
-<%   if (b.getBlockType() == BlockType.PRIORITY && b.getActualStartAt() == null) { %>
-        <div class="block-actions"><button type="button" class="btn-start" data-id="<%= b.getId() %>">開始</button></div>
-<%   } %>
-      </div>
-<% } %>
-    </div>
-
-    <h2>クリア済み</h2>
-    <div class="tower">
-<% if (doneBlocks.isEmpty()) { %>
-      <div class="empty">まだありません</div>
-<% } %>
-<% for (Block b : doneBlocks) { %>
-      <div class="<%= BlockView.cssClass(b) %>" data-id="<%= b.getId() %>">
-        <div class="block-title"><%= Html.escape(b.getTitle()) %></div>
-        <div class="block-sub"><%= Html.escape(BlockView.subText(b)) %></div>
-        <div class="block-actions"><button type="button" class="btn-undo" data-id="<%= b.getId() %>">戻す</button></div>
-      </div>
-<% } %>
-    </div>
-  </main>
-  <div class="toast" id="toast"></div>
-  <script src="<%= ctx %>/js/day.js"></script>
-</body>
-</html>
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><%= date %> | STPIM</title><link rel="stylesheet" href="<%= ctx %>/css/style.css"></head><body data-ctx="<%= ctx %>"><div class="app-shell">
+<%@ include file="header.jspf" %>
+<main class="page"><div class="day-toolbar"><a class="day-arrow" href="?date=<%= date.minusDays(1) %>" aria-label="前日">‹</a><div><p class="eyebrow" style="margin:0"><%= date.equals(stpim.util.Clock.today())?"今日の積み上げ":"日のブロック" %></p><h1 class="day-date-label"><%= date.getMonthValue() %>月<%= date.getDayOfMonth() %>日（<%= new String[]{"月","火","水","木","金","土","日"}[date.getDayOfWeek().getValue()-1] %>）</h1></div><a class="day-arrow" href="?date=<%= date.plusDays(1) %>" aria-label="翌日">›</a><a class="button small" href="<%= ctx %>/calendar?month=<%= java.time.YearMonth.from(date) %>&date=<%= date %>">カレンダーへ</a><span class="spacer"></span><a class="button primary" href="<%= ctx %>/blocks/new?date=<%= date %>">＋ ブロックを追加</a></div>
+<div class="day-layout"><section class="day-main"><div class="day-columns"><section class="block-board"><header class="board-head"><div class="board-head-left"><span class="type-chip">時間制</span><h2 class="board-title">時刻厳守の予定</h2><span class="board-count"><%= timedTodo.size()+timedDone.size() %>件</span></div><span class="board-caption">開始時刻の順に並びます</span></header><div class="stack"><% if(timedTodo.isEmpty()&&timedDone.isEmpty()){ %><div class="empty">この日の時間制ブロックはありません</div><% } for(Block b:timedTodo){ %><%= BlockView.cardHtml(b,ctx) %><% } for(Block b:timedDone){ %><%= BlockView.cardHtml(b,ctx) %><% } %></div><a class="button small" style="margin-top:12px" href="<%= ctx %>/blocks/new?date=<%= date %>&type=TIME">＋ 時間制を追加</a></section>
+<section class="block-board"><header class="board-head"><div class="board-head-left"><span class="type-chip priority">優先順位</span><h2 class="board-title">順不同の用事</h2><span class="board-count"><%= priorityTodo.size()+priorityDone.size() %>件</span></div><span class="board-caption">上ほど優先度が高い</span></header><div class="stack"><% if(priorityTodo.isEmpty()&&priorityDone.isEmpty()){ %><div class="empty">この日の優先順位ブロックはありません</div><% } for(Block b:priorityTodo){ %><%= BlockView.cardHtml(b,ctx) %><% } for(Block b:priorityDone){ %><%= BlockView.cardHtml(b,ctx) %><% } %></div><a class="button small" style="margin-top:12px" href="<%= ctx %>/blocks/new?date=<%= date %>&type=PRIORITY">＋ 優先順位を追加</a></section></div>
+<p class="tiny" style="margin-top:18px">未完了のブロックを右へスライドするとクリアできます。どのブロックからでも操作できます。</p></section>
+<aside class="day-side"><section class="panel side-card"><h2>この日のようす</h2><div class="stat-grid"><div class="stat-box"><span class="stat-label">残り</span><span class="stat-value"><%= ((Integer)request.getAttribute("dayTotal")).intValue()-((Integer)request.getAttribute("dayDone")).intValue() %></span></div><div class="stat-box"><span class="stat-label">クリア</span><span class="stat-value"><%= request.getAttribute("dayDone") %></span></div><div class="stat-box"><span class="stat-label">未処理</span><span class="stat-value" style="<%= ((Integer)request.getAttribute("dayMissed")).intValue()>0?"color:var(--red)":"" %>"><%= request.getAttribute("dayMissed") %></span></div></div><div class="status-legend"><span class="status-pill">未着手</span><span class="status-pill done">完了</span><span class="status-pill missed">未処理</span></div></section><section class="panel side-card"><h2>クリアのしかた</h2><p class="gesture-note" style="margin:0">ブロックをつかんで右へスライド。残りのブロックが詰まって、クリアした時刻が記録されます。</p><div class="divider"></div><p class="tiny" style="margin:0">タイムアタックの記録は、優先順位ブロックの「開始」ボタンを押したときだけ所要時間を比べます。</p></section></aside></div></main>
+</div><div class="toast" id="toast" role="status"></div>
+<% if(resultBlock!=null&&result!=null){ %><div class="modal-backdrop" id="result-modal"><section class="modal narrow" role="dialog" aria-modal="true" aria-labelledby="result-title"><header class="modal-header"><div><h2 id="result-title">クリア結果</h2><p><%= Html.escape(resultBlock.getTitle()) %></p></div><button class="modal-close" type="button" data-close-result aria-label="閉じる">×</button></header><div class="modal-body">
+<% if(resultBlock.isTimeAttack()&&result.getDurationMinutes()!=null){ %><div class="result-hero green"><div class="result-kicker"><%= result.getPreviousDurationMinutes()==null?"最初の記録":"前回（"+result.getPreviousDurationMinutes()+"分）との比較" %></div><div class="result-value"><%= result.getDurationMinutes() %>分</div><div class="result-label"><%= Boolean.TRUE.equals(result.getPersonalBest())?"自己ベスト更新":result.getPreviousDurationMinutes()==null?"記録しました":(result.getDurationMinutes()-result.getPreviousDurationMinutes()>0?"+":"")+(result.getDurationMinutes()-result.getPreviousDurationMinutes())+"分" %></div></div>
+<% } else if(result.getDiffFromPlanMinutes()!=null){int diff=result.getDiffFromPlanMinutes(); %><div class="result-hero"><div class="result-kicker">予定終了との差</div><div class="result-value"><%= diff>0?"+":"" %><%= diff %>分</div><div class="result-label"><%= diff==0?"予定どおり":diff<0?"予定より"+(-diff)+"分早い":"予定より"+diff+"分遅い" %></div></div>
+<% } else if(result.getDurationMinutes()!=null){ %><div class="result-hero orange"><div class="result-kicker">所要時間</div><div class="result-value"><%= result.getDurationMinutes() %>分</div></div><% } else { %><div class="result-hero"><div class="result-kicker">クリア時刻</div><div class="result-value"><%= resultBlock.getActualEndAt().toLocalTime() %></div><div class="result-label">開始時刻がないため、所要時間の比較はありません</div></div><% } %>
+<div class="result-lines"><div class="result-line"><span>積み方</span><strong><%= resultBlock.getBlockType()==BlockType.TIME?"時間制":"優先順位" %></strong></div><div class="result-line"><span>クリア時刻</span><strong class="mono"><%= resultBlock.getActualEndAt().toLocalTime() %><%= resultBlock.isManualEnd()?"（手入力）":"" %></strong></div><% if(resultBlock.getActualStartAt()!=null){ %><div class="result-line"><span>開始時刻</span><strong class="mono"><%= resultBlock.getActualStartAt().toLocalTime() %></strong></div><% } %></div></div><footer class="modal-footer"><span class="spacer"></span><button class="button primary" type="button" data-close-result>閉じる</button></footer></section></div><% } %>
+<script src="<%= ctx %>/js/day.js"></script></body></html>

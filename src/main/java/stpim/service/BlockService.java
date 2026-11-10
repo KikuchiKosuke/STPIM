@@ -73,6 +73,7 @@ public class BlockService {
         if (b.getActualStartAt() != null) {
             return false; // 二重押下は無視
         }
+        if (b.getTargetDate().isAfter(now.toLocalDate())) return false;
         b.setActualStartAt(now);
         return true;
     }

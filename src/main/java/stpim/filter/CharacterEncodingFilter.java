@@ -7,10 +7,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 
 /** 日本語が文字化けしないように、すべての通信を UTF-8 にする */
-@WebFilter("/*")
 public class CharacterEncodingFilter implements Filter {
 
     @Override

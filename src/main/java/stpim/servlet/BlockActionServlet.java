@@ -3,6 +3,7 @@ package stpim.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 import javax.servlet.ServletException;
@@ -27,7 +28,7 @@ public class BlockActionServlet extends HttpServlet {
     private static final DateTimeFormatter HHMM = DateTimeFormatter.ofPattern("HH:mm");
 
     private final BlockService blockService = new BlockService();
-    private final ClearService clearService = new ClearService();
+    private final ClearService clearService = new ClearService(Daos.blockDao());
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -38,7 +39,7 @@ public class BlockActionServlet extends HttpServlet {
         BlockDao dao = Daos.blockDao();
         Block block = null;
         try {
-            block = dao.findById(Integer.parseInt(req.getParameter("id")));
+            block = dao.findById(userId(req), Integer.parseInt(req.getParameter("id")));
         } catch (NumberFormatException e) {
             // id が数字でないときは、下で「見つかりません」として返す
         }
@@ -51,23 +52,45 @@ public class BlockActionServlet extends HttpServlet {
         LocalDateTime now = Clock.now();
         if ("/start".equals(action)) {
             boolean ok = blockService.start(block, now);
-            dao.save(block);
+            if (ok) dao.save(block);
             out.print(ok ? "{\"ok\":true}" : error("開始できないブロックです"));
         } else if ("/clear".equals(action)) {
             ClearResult r = clearService.clear(block, now);
             if (r == null) {
-                out.print(error("すでにクリアされています"));
+                out.print(error(block.getStatus() == stpim.model.BlockStatus.DONE
+                        ? "すでにクリアされています" : "未来の日のブロックは当日になってからクリアできます"));
                 return;
             }
             dao.save(block);
+            req.getSession().setAttribute("clearResult", r);
+            req.getSession().setAttribute("clearBlock", block);
             out.print("{\"ok\":true"
                     + ",\"title\":" + quote(block.getTitle())
                     + ",\"blockType\":" + quote(block.getBlockType().name())
                     + ",\"diffFromPlanMinutes\":" + number(r.getDiffFromPlanMinutes())
                     + ",\"durationMinutes\":" + number(r.getDurationMinutes())
+                    + ",\"previousDurationMinutes\":" + number(r.getPreviousDurationMinutes())
+                    + ",\"bestBeforeMinutes\":" + number(r.getBestBeforeMinutes())
+                    + ",\"personalBest\":" + (r.getPersonalBest() == null ? "null" : r.getPersonalBest().toString())
                     + ",\"startAt\":" + (block.getActualStartAt() == null ? "null" : quote(block.getActualStartAt().format(HHMM)))
                     + ",\"endAt\":" + quote(block.getActualEndAt().format(HHMM))
                     + "}");
+        } else if ("/manual".equals(action)) {
+            LocalTime endTime = parseTime(req.getParameter("endTime"));
+            ClearResult r = clearService.manualClear(block, endTime, now);
+            if (r == null) {
+                out.print(error("終了時刻を確認してください。開始時刻より後で、現在時刻までを入力できます。"));
+                return;
+            }
+            dao.save(block);
+            req.getSession().setAttribute("clearResult", r);
+            req.getSession().setAttribute("clearBlock", block);
+            out.print("{\"ok\":true"
+                    + ",\"title\":" + quote(block.getTitle())
+                    + ",\"blockType\":" + quote(block.getBlockType().name())
+                    + ",\"diffFromPlanMinutes\":" + number(r.getDiffFromPlanMinutes())
+                    + ",\"durationMinutes\":" + number(r.getDurationMinutes())
+                    + ",\"endAt\":" + quote(block.getActualEndAt().format(HHMM)) + "}");
         } else if ("/undo".equals(action)) {
             String message = clearService.undo(block);
             if (message != null) {
@@ -80,6 +103,15 @@ public class BlockActionServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             out.print(error("操作が見つかりません"));
         }
+    }
+
+    private static int userId(HttpServletRequest req) {
+        return ((Integer) req.getSession(false).getAttribute("userId")).intValue();
+    }
+
+    private static LocalTime parseTime(String value) {
+        try { return value == null ? null : LocalTime.parse(value); }
+        catch (RuntimeException e) { return null; }
     }
 
     private static String error(String message) {

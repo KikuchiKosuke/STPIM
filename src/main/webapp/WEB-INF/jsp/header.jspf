@@ -1,0 +1,18 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ page import="stpim.util.Html" %>
+<%
+String navCtx = request.getContextPath();
+String currentView = (String) request.getAttribute("currentView");
+Object totalValue = request.getAttribute("totalCleared");
+int totalCleared = totalValue instanceof Integer ? ((Integer) totalValue).intValue() : 0;
+String userName = (String) session.getAttribute("username");
+%>
+<header class="topbar"><a class="brand" href="<%= navCtx %>/calendar"><span class="brand-mark"></span><span>STPIM</span></a>
+  <nav class="nav" aria-label="メインナビゲーション">
+    <a class="nav-link <%= "calendar".equals(currentView) ? "active" : "" %>" href="<%= navCtx %>/calendar">カレンダー</a>
+    <a class="nav-link <%= "day".equals(currentView) ? "active" : "" %>" href="<%= navCtx %>/day">今日のブロック</a>
+    <a class="nav-link <%= "attack".equals(currentView) ? "active" : "" %>" href="<%= navCtx %>/time-attack">タイムアタック</a>
+    <a class="nav-link <%= "records".equals(currentView) ? "active" : "" %>" href="<%= navCtx %>/records">記録・累計</a>
+  </nav>
+  <div class="topbar-right"><span class="total-pill">累計クリア <span class="mono"><%= totalCleared %></span></span><span class="user-pill"><span class="avatar"><%= Html.escape(userName == null || userName.isEmpty() ? "S" : userName.substring(0, 1).toUpperCase()) %></span><span class="user-name"><%= Html.escape(userName) %></span></span><a class="logout-button" href="<%= navCtx %>/logout">ログアウト</a></div>
+</header>
