@@ -125,6 +125,7 @@ h1 { font-size: clamp(25px,3vw,34px); line-height: 1.2; letter-spacing: -.045em;
 .block-card.missed { --shard-color: #f7e2db; border-color: #d18470; background: #f7e2db; }
 .block-card.done { background: #f4f4ef; border-color: var(--line-strong); color: #777e7e; opacity: .82; }
 .block-card.selected { box-shadow: 0 0 0 2px #414b4d, 0 3px 9px rgba(30,36,37,.1); }
+.block-card.draggable { cursor: grab; }
 .block-card.dragging { z-index: 3; box-shadow: 0 10px 28px rgba(26,30,31,.22); transition: none; cursor: grabbing; }
 .block-card.fly-out { transform: translateX(135%) rotate(4deg); opacity: 0; }
 .block-time { min-height: 52px; border: 1px solid rgba(86,112,130,.16); border-radius: 7px; background: rgba(255,255,255,.67); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; color: #3c5362; font-family: "DM Mono", monospace; font-variant-numeric: tabular-nums; line-height: 1.08; }

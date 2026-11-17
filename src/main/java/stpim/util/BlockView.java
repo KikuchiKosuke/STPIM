@@ -57,7 +57,7 @@ public final class BlockView {
                 ? "<span class=\"time-start\">" + b.getPlannedStartTime().format(HHMM) + "</span><span class=\"time-arrow\">↓</span><span class=\"time-end\">" + b.getPlannedEndTime().format(HHMM) + "</span>"
                 : "<span class=\"priority-label\">優先順位</span><strong class=\"priority-value\">" + escape(b.getPriority().getLabel()) + "</strong>";
         StringBuilder html = new StringBuilder();
-        html.append("<article class=\"block-card ").append(kind).append(" ").append(cssClass(b).contains("missed") ? "missed " : "")
+        html.append("<article class=\"block-card ").append(kind).append(" ").append(b.getStatus() != BlockStatus.DONE ? "draggable " : "").append(cssClass(b).contains("missed") ? "missed " : "")
                 .append(cssClass(b).contains("done") ? "done " : "").append(b.isTimeAttack() ? "attack " : "")
                 .append("\" data-id=\"").append(b.getId()).append("\">");
         html.append("<div class=\"block-time ").append(kind.equals("priority") ? "priority-time" : "").append("\">").append(schedule).append("</div>");
