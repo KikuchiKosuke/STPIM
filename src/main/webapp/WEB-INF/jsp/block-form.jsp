@@ -21,7 +21,7 @@ if (compareId == null && block != null && block.getSeriesId()!=null) for(Block c
 %>
 <!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><%= block==null ? "ブロックを追加" : "ブロックを編集" %> | STPIM</title><link rel="stylesheet" href="<%= ctx %>/css/style.css"></head><body><div class="app-shell">
 <%@ include file="header.jspf" %>
-<main class="page"><div class="page-heading"><div><p class="eyebrow">予定をひとつ、ブロックに</p><h1><%= block==null ? "ブロックを追加" : "ブロックを編集" %></h1><p class="heading-sub">時間制か優先順位を選んで、今日の積み上げに。</p></div><a class="button" href="<%= ctx %>/day?date=<%= date %>">日画面へ戻る</a></div>
+<main class="page"><div class="page-heading"><div><p class="eyebrow">ブロックの作成</p><h1><%= block==null ? "ブロックを追加" : "ブロックを編集" %></h1><p class="heading-sub">予定をくみたてる</p></div><a class="button" href="<%= ctx %>/day?date=<%= date %>">日画面へ戻る</a></div>
 <div class="form-layout"><section class="panel form-panel"><% if(locked){ %><div class="soft-note" style="margin-bottom:18px">開始済み・完了済みのため、記録に関わる設定は変更できません。タイトルとメモを編集できます。</div><% } %>
 <% if(errors!=null && !errors.isEmpty()){ %><div class="auth-error" role="alert"><% for(String error:errors){ %><div><%= Html.escape(error) %></div><% } %></div><% } %>
 <form id="block-form" method="post" action="<%= ctx %>/blocks/save"><% if(block!=null){ %><input type="hidden" name="id" value="<%= block.getId() %>"><% } %>
