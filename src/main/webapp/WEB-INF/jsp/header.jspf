@@ -7,7 +7,7 @@ Object totalValue = request.getAttribute("totalCleared");
 int totalCleared = totalValue instanceof Integer ? ((Integer) totalValue).intValue() : 0;
 String userName = (String) session.getAttribute("username");
 %>
-<header class="topbar"><a class="brand" href="<%= navCtx %>/calendar"><span class="brand-mark"></span><span>STPIM</span></a>
+<header class="topbar"><a class="brand" href="<%= navCtx %>/calendar"><span>STPIM</span></a>
   <nav class="nav" aria-label="メインナビゲーション">
     <a class="nav-link <%= "calendar".equals(currentView) ? "active" : "" %>" href="<%= navCtx %>/calendar">カレンダー</a>
     <a class="nav-link <%= "day".equals(currentView) ? "active" : "" %>" href="<%= navCtx %>/day">今日のブロック</a>

@@ -9,8 +9,8 @@ String formUsername = (String) request.getAttribute("formUsername");
 %>
 <!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>STPIM ログイン</title><link rel="stylesheet" href="<%= ctx %>/css/style.css"></head>
 <body><main class="login-page">
-  <section class="login-story"><div class="brand login-brand"><span class="brand-mark"></span><span>STPIM</span></div>
-    <p class="eyebrow">Schedule · Stack · Clear</p><h1>作って、かさねて<br>ふっとばす！</h1>
+  <section class="login-story"><div class="brand login-brand"><span>STPIM</span></div>
+    <p class="eyebrow">Schedule · Stack · Smash</p><h1>作って、かさねて<br>ふっとばす！</h1>
     <p>予定も、やりたいことも。ブロックを積んで、横へふっとばして、今日のタスクをクリアしよう。</p>
     <div class="hero-stack" aria-hidden="true"><div class="hero-block">会議の準備</div><div class="hero-block">洗濯物をたたむ</div><div class="hero-block">勉強をすすめる</div></div>
   </section>
@@ -21,6 +21,6 @@ String formUsername = (String) request.getAttribute("formUsername");
     <label class="field"><span class="field-label">ユーザー名</span><input name="username" autocomplete="username" maxlength="30" required placeholder="例：stpim_user" value="<%= Html.escape(formUsername) %>"></label>
     <label class="field"><span class="field-label">パスワード</span><input name="password" type="password" autocomplete="<%= registerMode ? "new-password" : "current-password" %>" minlength="<%= registerMode ? "8" : "1" %>" required placeholder="<%= registerMode ? "8文字以上" : "パスワード" %>"></label>
     <button class="button primary auth-submit" type="submit"><%= registerMode ? "アカウントを作成" : "ログインしてカレンダーへ" %><span aria-hidden="true">→</span></button>
-    <p class="auth-foot"><% if (registerMode) { %>ユーザー名は3〜30文字、パスワードは8文字以上です。<% } else { %>デモ：<strong>demo</strong> ／ <strong>demo1234</strong><br>試作用のデータはTomcatのメモリに保存されます。<% } %></p>
+    <p class="auth-foot"><% if (registerMode) { %>ユーザー名は3〜30文字、パスワードは8文字以上です。<% } else { %>デモ：<strong>demo</strong> ／ <strong>demo1234</strong><br><% } %></p>
   </form></section>
 </main></body></html>
