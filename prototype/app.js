@@ -122,8 +122,8 @@
     return `<div class="login-page">
       <section class="login-story">
         <div class="brand login-brand"><span class="brand-mark"></span><span>STPIM</span></div>
-        <h1>今日を、ひとつずつ。<br>軽やかに。</h1>
-        <p>予定も、やりたいことも。ブロックを積んで、横にスライドして、今日の一歩をクリアしよう。</p>
+        <h1>作ってかさねて<br>ふっとばす！</h1>
+        <p>予定も、やりたいことも。ブロックを積み、横にふっとばして、今日のタスクをクリアしよう。</p>
         <div class="hero-stack" aria-hidden="true"><div class="hero-block">会議の準備</div><div class="hero-block">洗濯物をたたむ</div><div class="hero-block">卒業制作を進める</div></div>
       </section>
       <section class="login-side"><form class="login-card" id="auth-form">
