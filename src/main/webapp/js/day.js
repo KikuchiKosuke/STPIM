@@ -15,32 +15,59 @@
     data.set("id", id);
     return fetch(ctx + "/block/" + action, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        "Accept": "application/json"
+      },
       body: data.toString()
     }).then(function (response) {
+      if (response.status === 401) {
+        window.location.href = ctx + "/login";
+        return null;
+      }
+      var contentType = response.headers.get("Content-Type") || "";
+      if (contentType.indexOf("application/json") === -1) {
+        throw new Error("ページの表示中に問題が発生しました。再読み込みしてください。");
+      }
       return response.json().then(function (result) {
         if (!response.ok && result.ok !== false) throw new Error("通信に失敗しました。");
         return result;
       });
     });
   }
-  function reloadAfter(action, id, extra, card) {
+  function resetEffect(card) {
+    if (!card) return;
+    card.classList.remove("effect-launch", "effect-impact");
+    if (card.parentElement) card.parentElement.classList.remove("effect-shock");
+    ["--release-x", "--impact-x", "--travel-x"].forEach(function (name) { card.style.removeProperty(name); });
+  }
+  function reloadAfter(action, id, extra, card, releaseX) {
     if (clearing.has(id)) return;
     clearing.add(id);
-    var effectDuration = action === "clear" || action === "manual" ? 650 : 0;
-    if (card && effectDuration) card.classList.add("effect-launch");
+    var effectDuration = action === "clear" || action === "manual" ? 1000 : 0;
+    var effectStarted = Date.now();
+    if (card && effectDuration) {
+      var viewportWidth = Math.max(window.innerWidth, document.documentElement.clientWidth);
+      card.style.setProperty("--release-x", (releaseX || 0) + "px");
+      card.style.setProperty("--impact-x", Math.min(190, Math.max(96, card.getBoundingClientRect().width * .36)) + "px");
+      card.style.setProperty("--travel-x", (viewportWidth + card.getBoundingClientRect().width + 70) + "px");
+      card.classList.add("effect-impact");
+      if (card.parentElement) card.parentElement.classList.add("effect-shock");
+    }
     post(action, id, extra).then(function (result) {
+      if (!result) return;
       if (!result.ok) {
-        if (card) card.classList.remove("effect-launch");
+        resetEffect(card);
         showToast(result.message || "操作できませんでした。", true);
         clearing.delete(id);
         return;
       }
-      window.setTimeout(function () { window.location.reload(); }, effectDuration);
-    }).catch(function () {
-      if (card) card.classList.remove("effect-launch");
+      var remaining = Math.max(0, effectDuration - (Date.now() - effectStarted));
+      window.setTimeout(function () { window.location.reload(); }, remaining);
+    }).catch(function (error) {
+      resetEffect(card);
       clearing.delete(id);
-      showToast("通信に失敗しました。もう一度お試しください。", true);
+      showToast(error && error.message ? error.message : "通信に失敗しました。もう一度お試しください。", true);
     });
   }
   document.querySelectorAll("[data-action='clear'],[data-action='start'],[data-action='undo']").forEach(function (button) {
@@ -71,8 +98,9 @@
       if (!active && !moved) return;
       active = false; card.classList.remove("dragging");
       if (deltaX > 105) {
+        var releaseX = Math.min(deltaX, 160);
         card.style.transform = "";
-        reloadAfter("clear", card.dataset.id, null, card);
+        reloadAfter("clear", card.dataset.id, null, card, releaseX);
       } else {
         card.style.transform = "";
       }

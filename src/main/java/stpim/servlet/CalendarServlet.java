@@ -25,19 +25,23 @@ public class CalendarServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        LocalDate selected;
+        try { selected = LocalDate.parse(req.getParameter("date")); }
+        catch (RuntimeException e) { selected = null; }
         YearMonth month;
-        try { month = YearMonth.parse(req.getParameter("month")); }
-        catch (DateTimeParseException | NullPointerException e) { month = YearMonth.from(Clock.today()); }
+        if (selected != null) {
+            // The clicked day is authoritative, including dates in the adjacent-month cells.
+            month = YearMonth.from(selected);
+        } else {
+            try { month = YearMonth.parse(req.getParameter("month")); }
+            catch (DateTimeParseException | NullPointerException e) { month = YearMonth.from(Clock.today()); }
+            selected = month.equals(YearMonth.from(Clock.today())) ? Clock.today() : month.atDay(1);
+        }
         int userId = userId(req);
         BlockDao dao = Daos.blockDao();
         List<Block> blocks = dao.findByMonth(userId, month);
-        for (Block changed : service.markOverdueAsMissed(blocks, Clock.now())) dao.save(changed);
         List<Block> all = dao.findByUser(userId);
         for (Block changed : service.markOverdueAsMissed(all, Clock.now())) dao.save(changed);
-        LocalDate selected;
-        try { selected = LocalDate.parse(req.getParameter("date")); }
-        catch (RuntimeException e) { selected = month.equals(YearMonth.from(Clock.today())) ? Clock.today() : month.atDay(1); }
-        if (!YearMonth.from(selected).equals(month)) selected = month.equals(YearMonth.from(Clock.today())) ? Clock.today() : month.atDay(1);
         req.setAttribute("month", month);
         req.setAttribute("selectedDate", selected);
         req.setAttribute("blocks", blocks);

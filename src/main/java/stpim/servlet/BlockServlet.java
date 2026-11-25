@@ -44,6 +44,8 @@ public class BlockServlet extends HttpServlet {
         initial.targetDate = validDate(req.getParameter("date"), block == null ? Clock.today() : block.getTargetDate());
         try { initial.blockType = BlockType.valueOf(req.getParameter("type")); } catch (RuntimeException e) { }
         req.setAttribute("form", block == null ? initial : null);
+        req.setAttribute("returnTab", block != null ? block.getBlockType()
+                : initial.blockType == null ? BlockType.TIME : initial.blockType);
         req.setAttribute("seriesCandidates", timeAttackCandidates(userId));
         setHeader(req, userId);
         req.getRequestDispatcher("/WEB-INF/jsp/block-form.jsp").forward(req, resp);
@@ -76,9 +78,14 @@ public class BlockServlet extends HttpServlet {
         boolean locked = existing != null && (existing.getStatus() == BlockStatus.DONE || existing.getActualStartAt() != null);
         if (locked) {
             String title = req.getParameter("title") == null ? "" : req.getParameter("title").trim();
-            if (title.isEmpty() || title.length() > BlockService.TITLE_MAX_LENGTH) {
-                req.setAttribute("errors", java.util.Collections.singletonList(title.isEmpty()
-                        ? "タイトルを入力してください" : "タイトルは100文字以内で入力してください"));
+            String rawMemo = req.getParameter("memo") == null ? "" : req.getParameter("memo");
+            String memo = rawMemo.trim();
+            List<String> errors = new java.util.ArrayList<String>();
+            if (title.isEmpty()) errors.add("タイトルを入力してください");
+            else if (title.length() > BlockService.TITLE_MAX_LENGTH) errors.add("タイトルは100文字以内で入力してください");
+            if (rawMemo.length() > BlockService.MEMO_MAX_LENGTH) errors.add("メモは500文字以内で入力してください");
+            if (!errors.isEmpty()) {
+                req.setAttribute("errors", errors);
                 req.setAttribute("block", existing);
                 req.setAttribute("date", existing.getTargetDate());
                 BlockInput lockedForm = new BlockInput();
@@ -87,13 +94,14 @@ public class BlockServlet extends HttpServlet {
                 lockedForm.timeAttack = existing.isTimeAttack();
                 lockedForm.betterDirection = existing.getBetterDirection();
                 req.setAttribute("form", lockedForm);
+                req.setAttribute("returnTab", existing.getBlockType());
                 req.setAttribute("seriesCandidates", timeAttackCandidates(userId));
                 setHeader(req, userId);
                 req.getRequestDispatcher("/WEB-INF/jsp/block-form.jsp").forward(req, resp);
                 return;
             }
             existing.setTitle(title);
-            existing.setMemo(req.getParameter("memo") == null ? "" : req.getParameter("memo").trim());
+            existing.setMemo(memo);
             dao.save(existing);
             resp.sendRedirect(req.getContextPath() + "/day?date=" + existing.getTargetDate() + "&tab=" + existing.getBlockType().name());
             return;
@@ -105,6 +113,7 @@ public class BlockServlet extends HttpServlet {
             req.setAttribute("block", existing);
             req.setAttribute("date", input.targetDate == null ? Clock.today() : input.targetDate);
             req.setAttribute("form", input);
+            req.setAttribute("returnTab", input.blockType == null ? BlockType.TIME : input.blockType);
             req.setAttribute("seriesCandidates", timeAttackCandidates(userId));
             setHeader(req, userId);
             req.getRequestDispatcher("/WEB-INF/jsp/block-form.jsp").forward(req, resp);
@@ -161,7 +170,6 @@ public class BlockServlet extends HttpServlet {
             Block candidate = Daos.blockDao().findById(CalendarServlet.userId(req), compareId);
             if (candidate != null && candidate.isTimeAttack()) in.betterDirection = candidate.getBetterDirection();
         }
-        if (in.targetDate == null) in.targetDate = Clock.today();
         return in;
     }
 

@@ -26,6 +26,13 @@ public class AuthFilter implements Filter {
         }
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
+            String accept = req.getHeader("Accept");
+            if (accept != null && accept.contains("application/json")) {
+                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                resp.setContentType("application/json; charset=UTF-8");
+                resp.getWriter().write("{\"ok\":false,\"message\":\"ログインの有効期限が切れました。ログインし直してください。\"}");
+                return;
+            }
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }

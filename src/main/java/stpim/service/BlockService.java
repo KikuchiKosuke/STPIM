@@ -14,16 +14,28 @@ import stpim.model.BlockType;
 public class BlockService {
 
     public static final int TITLE_MAX_LENGTH = 100;
+    public static final int MEMO_MAX_LENGTH = 500;
 
     /** 入力を検査する。エラーの文章のリストを返す（空ならOK） */
     public List<String> validate(BlockInput in) {
         List<String> errors = new ArrayList<String>();
+        if (in == null) {
+            errors.add("入力内容を確認してください");
+            return errors;
+        }
+        if (in.targetDate == null) {
+            errors.add("日付を選択してください");
+        }
         String title = in.title == null ? "" : in.title.trim();
         if (title.isEmpty()) {
             errors.add("タイトルを入力してください");
         }
         if (title.length() > TITLE_MAX_LENGTH) {
             errors.add("タイトルは" + TITLE_MAX_LENGTH + "文字以内で入力してください");
+        }
+        String memo = in.memo == null ? "" : in.memo;
+        if (memo.length() > MEMO_MAX_LENGTH) {
+            errors.add("メモは" + MEMO_MAX_LENGTH + "文字以内で入力してください");
         }
         if (in.blockType == null) {
             errors.add("時間制か優先順位のどちらかを選んでください");
@@ -48,7 +60,7 @@ public class BlockService {
         Block b = new Block();
         b.setTargetDate(in.targetDate);
         b.setTitle(in.title.trim());
-        b.setMemo(in.memo == null ? "" : in.memo);
+        b.setMemo(in.memo == null ? "" : in.memo.trim());
         b.setBlockType(in.blockType);
         b.setStatus(BlockStatus.TODO);
         if (in.blockType == BlockType.TIME) {

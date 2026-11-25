@@ -37,7 +37,7 @@ public class TimeAttackServlet extends HttpServlet {
         if (active == null && !series.isEmpty()) { active = series.get(0); selected = active.getSeriesId(); }
         List<Block> records = new ArrayList<Block>();
         if (active != null) for (Block b : all) {
-            if (b.getSeriesId().equals(active.getSeriesId()) && b.getStatus() == BlockStatus.DONE
+            if (b.isTimeAttack() && b.getSeriesId() != null && b.getSeriesId().equals(active.getSeriesId()) && b.getStatus() == BlockStatus.DONE
                     && b.getActualStartAt() != null && b.getActualEndAt() != null) records.add(b);
         }
         records.sort(Comparator.comparing(Block::getActualEndAt).thenComparing(Block::getId));
